@@ -99,3 +99,83 @@ const getCountryData = function(country) {
 btn.addEventListener("click", function() {
     getCountryData("poland");
 });
+
+// Test Data [ 52,508,13,381]
+// Test Data 2 [19,037,72,873]
+// Test Data = [-33.933,18.474]
+
+const whereAmI = (lat, lang) => {
+    fetch(`https://geocode.xyz/${lat},${lang}?geoit=json`)
+        .then((response) => {
+            if (!response.ok) throw new Error("Problem with geocoding");
+            return response.json();
+        })
+        .then((data) => {
+            console.log(`You are in ${data.city}, ${data.country}`);
+            return fetch(`https://restcountries.eu/rest/v2/name/${data.country}`);
+        })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data2) => {
+            insertCountry(data2[0]);
+        })
+        .catch((err) => console.log(`${err.message}`));
+};
+
+// whereAmI(52.508, 13.381);
+// whereAmI(19.037, 72.873);
+// whereAmI(-33.933, 18.474);
+
+// console.log(`Test start`);
+// setTimeout(() => console.log(`0 sec timer`), 0);
+// Promise.resolve("Resolved promise 1").then((res) => console.log(res));
+// Promise.resolve("Resolve promise 2").then((res) => {
+//     for (let i = 0; i < 1000; i++) {
+//         console.log(res);
+//     }
+// });
+// console.log(`Test End`);
+
+const loterry = new Promise(function(resolve, reject) {
+    console.log(`Lottery draw`);
+    setInterval(function() {
+        if (Math.random() >= 0.5) {
+            resolve(`You WIN `);
+        } else {
+            reject(`You lost your money. Fuck you`);
+        }
+    }, 2000);
+});
+
+loterry
+    .then((response) => console.log(response))
+    .catch((err) => console.error(err));
+
+// Promisyfing
+const wait = function(seconds) {
+    return new Promise(function(resolve) {
+        setTimeout(resolve, seconds * 1000);
+    });
+};
+
+wait(2)
+    .then(() => {
+        console.log("1 second passed");
+        return wait(1);
+    })
+    .then(() => {
+        console.log("1 second passed");
+        return wait(1);
+    })
+    .then(() => {
+        console.log("1 second passed");
+        return wait(1);
+    })
+    .then(() => {
+        console.log("1 second passed");
+        return wait(1);
+    });
+
+Promise.resolve("abc").then((x) => console.log(x));
+Promise.reject("abc").catch((x) => console.error(x));
