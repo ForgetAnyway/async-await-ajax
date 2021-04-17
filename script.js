@@ -5,13 +5,6 @@ const countriesContainer = document.querySelector(".countries");
 
 ///////////////////////////////////////
 
-const getJSON = function(url, errorMsg) {
-    return fetch(url).then((response) => {
-        if (!response.ok) throw new Error(`${errorMsg} ${response.status}`);
-        return response.json();
-    });
-};
-
 const insertCountry = function(data, className = "") {
     const html = `  <article class="country ${className}">
 <img class="country__img" src="${data.flag}" />
@@ -265,3 +258,67 @@ console.log("end");
 })();
 
 btn.addEventListener("click", whereAmI2);
+
+const getJSON = function(url, errorMsg) {
+    return fetch(url).then((response) => {
+        if (!response.ok) throw new Error(`${errorMsg} ${response.status}`);
+        return response.json();
+    });
+};
+
+const imgCotainer = document.querySelector(".images");
+
+const createImage = function(imgPath) {
+    return new Promise(function(resolve, reject) {
+        const img = document.createElement("img");
+        img.src = imgPath;
+        img.addEventListener("load", function() {
+            imgCotainer.appendChild(img);
+        });
+        resolve(img);
+        img.addEventListener("error", function() {
+            reject(new Error("Image not found"));
+        });
+    });
+};
+
+// Coding Challenge using then method
+
+// let currentImg;
+
+// createImage("img/img-1.jpg")
+//     .then((img) => {
+//         currentImg = img;
+//         return wait(2);
+//     })
+//     .then(() => {
+//         currentImg.style.display = "none";
+//         return createImage("img/img-2.jpg");
+//     })
+//     .then((img) => {
+//         currentImg = img;
+//         return wait(2);
+//     })
+//     .then(() => {
+//         currentImg.style.display = "none";
+//     });
+
+// Coding Challenge using async/await
+
+const changeImg = async function() {
+    let img = await createImage("img/img-1.jpg");
+    await wait2(2);
+    img.style.display = "none";
+    await wait2(2);
+    img = await createImage("img/img-2.jpg");
+    await wait2(2);
+    img.style.display = "none";
+};
+
+changeImg();
+
+const wait2 = function(seconds) {
+    return new Promise(function(resolve, reject) {
+        setTimeout(resolve, seconds * 1000);
+    });
+};
