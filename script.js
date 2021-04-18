@@ -305,20 +305,108 @@ const createImage = function(imgPath) {
 
 // Coding Challenge using async/await
 
-const changeImg = async function() {
-    let img = await createImage("img/img-1.jpg");
-    await wait2(2);
-    img.style.display = "none";
-    await wait2(2);
-    img = await createImage("img/img-2.jpg");
-    await wait2(2);
-    img.style.display = "none";
+const loadNPause = async function() {
+    try {
+        let img = await createImage("img/img-1.jpg");
+        await wait2(2);
+        img.style.display = "none";
+        await wait2(2);
+        img = await createImage("img/img-2.jpg");
+        await wait2(2);
+        img.style.display = "none";
+    } catch (err) {
+        console.error(err);
+    }
 };
 
-changeImg();
+// loadNPause();
 
 const wait2 = function(seconds) {
     return new Promise(function(resolve, reject) {
         setTimeout(resolve, seconds * 1000);
     });
 };
+
+// Using Paralel to run multiple async calls
+
+const get3Coutries = async function(c1, c2, c3) {
+    try {
+        // const [data1] = await getJSON(
+        //     `https://restcountries.eu/rest/v2/name/${c1}`
+        // );
+        // const [data2] = await getJSON(
+        //     `https://restcountries.eu/rest/v2/name/${c2}`
+        // );
+        // const [data3] = await getJSON(
+        //     `https://restcountries.eu/rest/v2/name/${c3}`
+        // );
+
+        const data = await Promise.all([
+            await getJSON(`https://restcountries.eu/rest/v2/name/${c1}`),
+            await getJSON(`https://restcountries.eu/rest/v2/name/${c2}`),
+            await getJSON(`https://restcountries.eu/rest/v2/name/${c3}`),
+        ]);
+        // console.log([data1.capital, data2.capital, data3.capital]);
+        console.log(data.map((c) => c[0].capital));
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+get3Coutries("poland", "france", "italy");
+
+// Promise.racee
+
+(async function() {
+    const res = await Promise.race([
+        getJSON(`https://restcountries.eu/rest/v2/name/italy`),
+        getJSON(`https://restcountries.eu/rest/v2/name/poland`),
+        getJSON(`https://restcountries.eu/rest/v2/name/france`),
+    ]);
+    console.log(res[0]);
+})();
+
+const timeout = function(sec) {
+    return new Promise(function(_, reject) {
+        setTimeout(function() {
+            reject(new Error("Request took too long"));
+        }, sec * 1000);
+    });
+};
+
+Promise.race([
+        getJSON(`https://restcountries.eu/rest/v2/name/italy`),
+        timeout(0.01),
+    ])
+    .then((res) => console.log(res[0]))
+    .catch((err) => console.error(err));
+
+// Promise.allSettled
+
+Promise.allSettled([
+    Promise.resolve("Success"),
+    Promise.reject("Error"),
+    Promise.resolve("Another Success"),
+]).then((res) => console.log(res));
+
+// Promise.any
+
+Promise.any([
+    Promise.reject("Success"),
+    Promise.reject("Error"),
+    Promise.resolve("Another Success"),
+]).then((res) => console.log(res));
+
+const loadAll = async function(imgArr) {
+    try {
+        const imgs = imgArr.map(async(img) => await createImage(img));
+        console.log(imgs);
+        const data = await Promise.all(imgs);
+        data.forEach((i) => i.classList.add("parallel"));
+        // data.map((i) => i[0].classList.add("parallel"));
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+loadAll(["img/img-1.jpg", "img/img-2.jpg", "img/img-3.jpg"]);
